@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Category Categorizer</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      label,
+      input,
+      button {
+        display: block;
+        margin-bottom: 10px;
+      }
+      button {
+        cursor: pointer;
+      }
+      .results {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Category Categorizer</h1>
+    <p>Select whether you're entering a Full Program or Courses.</p>
+
+    <!-- Radio buttons to select Full Program or Courses -->
+    <label>
+      <input
+        type="radio"
+        name="inputType"
+        value="courses"
+        checked
+        onclick="toggleInputFields()"
+      />
+      Courses
+    </label>
+    <label>
+      <input
+        type="radio"
+        name="inputType"
+        value="program"
+        onclick="toggleInputFields()"
+      />
+      Full Program
+    </label>
+
+    <form id="inputForm">
+      <div id="inputs">
+        <!-- Input fields for courses (default) -->
+        <div class="course-inputs">
+          <label for="row1">Course 1 (Course Code):</label>
+          <input type="text" id="row1" name="row1" />
+          <label for="row2">Course 2 (Course Code):</label>
+          <input type="text" id="row2" name="row2" />
+          <label for="row3">Course 3 (Course Code):</label>
+          <input type="text" id="row3" name="row3" />
+          <label for="row4">Course 4 (Course Code):</label>
+          <input type="text" id="row4" name="row4" />
+          <label for="row5">Course 5 (Course Code):</label>
+          <input type="text" id="row5" name="row5" />
+          <label for="row6">Course 6 (Course Code):</label>
+          <input type="text" id="row6" name="row6" />
+          <label for="row7">Course 7 (Course Code):</label>
+          <input type="text" id="row7" name="row7" />
+          <label for="row8">Course 8 (Course Code):</label>
+          <input type="text" id="row8" name="row8" />
+          <label for="row9">Course 9 (Course Code):</label>
+          <input type="text" id="row9" name="row9" />
+          <label for="row10">Course 10 (Course Code):</label>
+          <input type="text" id="row10" name="row10" />
+        </div>
+
+        <!-- Input field for Full Program -->
+        <div class="program-input" style="display: none">
+          <label for="programCode">Program Code:</label>
+          <input type="text" id="programCode" name="programCode" />
+        </div>
+      </div>
+      <button type="button" onclick="categorizeText()">Submit</button>
+    </form>
+
+    <div class="results" id="results"></div>
+
+    <script>
+      // Chapters for Courses (existing categories)
+      const courseCategories = {
+        'S Chapter': ['AD', 'AG', 'AH', 'AI', 'AL', 'AM'],
+        'IsB Chapter': ['AF'],
+        'Fria Sektionen': ['AK'],
+        'K Chapter': ['K', 'BB', 'CB', 'CK'],
+        'D Chapter': ['DD', 'EP'],
+        'Me Chapter': ['DM'],
+        'E Chapter': ['ED', 'EF', 'EG'],
+        'IT Chapter': ['I', 'EQ'],
+        'I Chapter': ['ME'],
+        'M Chapter': ['MF', 'MG'],
+        'B Chapter': ['MH'],
+        'W Chapter': ['MJ'],
+        'P Chapter': ['ML'],
+        'CL Chapter': ['L'],
+        'T Chapter': ['SD', 'SE', 'SG'],
+        'F Chapter': ['SH', 'SI', 'SK'],
+        'A Chapter': ['A1', 'A2', 'A3', 'A4', 'A5'],
+      };
+
+      // Chapters for Full Program (distinct from course categories)
+      const programCategories = {
+        'A Chapter': ['ARKIT', 'TLODM', 'TARKM'],
+        'B Chapter': ['CMATD', 'TTMVM'],
+        'CL Chapter': ['CLGYM', 'KPULU', 'KPUFU', 'KPUHU'],
+        'D Chapter': ['CDATE', 'TCSCM', 'TMAIM', 'TCYSM'],
+        'Dr Chapter': ['FORSK'],
+        'E Chapter': [
+          'CELTE',
+          'TELPM',
+          'TSCRM',
+          'TINNM',
+          'TNTEM',
+          'TEFRM',
+          'TEFRM',
+        ],
+        'F Chapter': [
+          'CTFYS',
+          'CTMAT',
+          'TMAKM',
+          'TNEEM',
+          'TTFYM',
+          'TTMAM',
+          'TBDVM',
+          'TDTNM',
+        ],
+        // Add more categories as needed
+      };
+
+      // Function to toggle the input fields based on selection
+      function toggleInputFields() {
+        const inputType = document.querySelector(
+          'input[name="inputType"]:checked'
+        ).value;
+        const courseInputs = document.querySelector('.course-inputs');
+        const programInput = document.querySelector('.program-input');
+
+        if (inputType === 'program') {
+          courseInputs.style.display = 'none';
+          programInput.style.display = 'block';
+        } else {
+          courseInputs.style.display = 'block';
+          programInput.style.display = 'none';
+        }
+      }
+
+      // Function to categorize text inputs
+      function categorizeText() {
+        const results = {};
+        let totalRows = 0;
+
+        // Check if Full Program or Courses was selected
+        const inputType = document.querySelector(
+          'input[name="inputType"]:checked'
+        ).value;
+
+        if (inputType === 'program') {
+          // Collect Program Code input
+          const programCode = document
+            .getElementById('programCode')
+            .value.trim();
+          if (programCode !== '') {
+            totalRows = 1; // Since only one program code is entered
+            const firstTwoLetters = programCode.slice(0, 2).toUpperCase();
+
+            // Find category based on the first two letters or first letter
+            let categoryFound = false;
+
+            // Check for categories based on the first two letters in the Full Program categories
+            for (const category in programCategories) {
+              if (programCategories[category].includes(firstTwoLetters)) {
+                if (results[category]) {
+                  results[category]++;
+                } else {
+                  results[category] = 1;
+                }
+                categoryFound = true;
+                break;
+              }
+            }
+
+            // If no category matches, categorize as "Uncategorized"
+            if (!categoryFound) {
+              if (results['Uncategorized']) {
+                results['Uncategorized']++;
+              } else {
+                results['Uncategorized'] = 1;
+              }
+            }
+          }
+        } else {
+          // Collect input values for courses
+          for (let i = 1; i <= 10; i++) {
+            const input = document.getElementById('row' + i).value.trim();
+            if (input !== '') {
+              totalRows++;
+              const firstTwoLetters = input.slice(0, 2).toUpperCase();
+              const firstLetter = input.charAt(0).toUpperCase();
+
+              // Find category based on the first two letters in the course categories
+              let categoryFound = false;
+
+              // Check for categories based on the first two letters in the Courses categories
+              for (const category in courseCategories) {
+                if (courseCategories[category].includes(firstTwoLetters)) {
+                  if (results[category]) {
+                    results[category]++;
+                  } else {
+                    results[category] = 1;
+                  }
+                  categoryFound = true;
+                  break;
+                }
+              }
+
+              // If no match for the first two letters, try checking with the first letter
+              if (!categoryFound) {
+                for (const category in courseCategories) {
+                  if (
+                    courseCategories[category].some(
+                      (prefix) => prefix.charAt(0).toUpperCase() === firstLetter
+                    )
+                  ) {
+                    if (results[category]) {
+                      results[category]++;
+                    } else {
+                      results[category] = 1;
+                    }
+                    categoryFound = true;
+                    break;
+                  }
+                }
+              }
+
+              // If no category matches, categorize as "Uncategorized"
+              if (!categoryFound) {
+                if (results['Uncategorized']) {
+                  results['Uncategorized']++;
+                } else {
+                  results['Uncategorized'] = 1;
+                }
+              }
+            }
+          }
+        }
+
+        // Calculate and display results
+        let output = `<h2>Results</h2>`;
+        if (totalRows > 0) {
+          let hasOver10Percent = false;
+          for (let category in results) {
+            const percentage = (results[category] / totalRows) * 100;
+            if (percentage > 10) {
+              output += `<p>${category}: ${percentage.toFixed(2)}%</p>`;
+              hasOver10Percent = true;
+            }
+          }
+          if (!hasOver10Percent) {
+            // If no category had more than 10%, show all categories
+            for (let category in results) {
+              const percentage = (results[category] / totalRows) * 100;
+              output += `<p>${category}: ${percentage.toFixed(2)}%</p>`;
+            }
+          }
+        } else {
+          output += '<p>Please enter some text to categorize.</p>';
+        }
+        document.getElementById('results').innerHTML = output;
+      }
+    </script>
+  </body>
+</html>
